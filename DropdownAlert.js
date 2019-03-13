@@ -164,6 +164,9 @@ export default class DropdownAlert extends Component {
       SUCCESS: 'success',
       CUSTOM: 'custom',
     };
+    this.image = undefined;
+    this.setImageSrc = this.setImageSrc.bind(this);
+    this.resetImageSrc = this.resetImageSrc.bind(this);
   }
   componentDidMount() {
     this.createPanResponder();
@@ -202,6 +205,12 @@ export default class DropdownAlert extends Component {
       },
     });
   };
+  setImageSrc = (src) => {
+    this.image = src;
+  }
+  resetImageSrc = () => {
+    this.image = undefined;
+  }
   alertWithType = (type, title, message, interval) => {
     if (validateType(type) == false) {
       return;
@@ -233,6 +242,7 @@ export default class DropdownAlert extends Component {
         this._closeTimeoutId = setTimeout(
           function() {
             this.close('automatic');
+            this.resetImageSrc();
           }.bind(this),
           closeInterval
         );
@@ -260,6 +270,7 @@ export default class DropdownAlert extends Component {
             this._closeTimeoutId = setTimeout(
               function() {
                 self.close('automatic');
+                self.resetImageSrc();
               }.bind(self),
               closeInterval
             );
@@ -378,6 +389,10 @@ export default class DropdownAlert extends Component {
     }
   }
   getSourceForType(type) {
+    // Use dynamically set image source as the image source
+    if (this.image) {
+      return this.image;
+    }
     switch (type) {
       case this.types.INFO:
         return this.props.infoImageSrc;
