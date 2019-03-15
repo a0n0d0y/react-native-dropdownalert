@@ -174,6 +174,12 @@ export default class DropdownAlert extends Component {
     this.resetImageContainerStyle = this.resetImageContainerStyle.bind(this);
     this.setImageStyle = this.setImageStyle.bind(this);
     this.resetImageStyle = this.resetImageStyle.bind(this);
+
+    this.setOnClose = this.setOnClose.bind(this);
+    this.resetOnClose = this.resetOnClose.bind(this);
+    this.markOnCloseAsUsed = this.markOnCloseAsUsed.bind(this);
+
+    this.getOnCloseFunc = this.getOnCloseFunc.bind(this);
   }
   componentDidMount() {
     this.createPanResponder();
@@ -222,11 +228,27 @@ export default class DropdownAlert extends Component {
   setImageSrc = (src) => {
     this.image = src;
   }
+  setOnClose = (onClose) => {
+    if (typeof onClose === 'function') {
+      this.onClose = {
+        onClose,
+        hasUsed: false // Updated to true after used
+      };
+    }
+  }
+
+  markOnCloseAsUsed = () => {
+    if (this.onClose) {
+      this.onClose.hasUsed = true;
+    }
+  }
+
   resetImageSrc = () => {
     this.image = undefined;
   }
   resetImageStyle = () => this.imageStyle = undefined;
   resetImageContainerStyle = () => this.imageContainerStyle = undefined;
+  resetOnClose = () => this.onClose = undefined;
 
   alertWithType = (type, title, message, interval) => {
     if (validateType(type) == false) {
@@ -301,14 +323,33 @@ export default class DropdownAlert extends Component {
       );
     }
   };
+
+  /**
+   * Get onClose function
+   */
+  getOnCloseFunc = (action) => {
+    var ret = this.props.onClose;
+    if (this.onClose && !this.onClose.hasUsed) {
+      ret = this.onClose;
+    } else if (this.onClose) {
+      // Current onClose func has been used
+      this.resetOnClose();
+    }
+    if (action == 'cancel') {
+      ret = this.props.onCancel;
+    }
+    return ret;
+  };
+
   close = action => {
     if (action == undefined) {
       action = 'programmatic';
     }
-    var onClose = this.props.onClose;
-    if (action == 'cancel') {
-      onClose = this.props.onCancel;
-    }
+    // var onClose = this.props.onClose;
+    // if (action == 'cancel') {
+    //   onClose = this.props.onCancel;
+    // }
+    var onClose = this.getOnCloseFunc(action);
     if (this.state.isOpen) {
       if (this._closeTimeoutId != null) {
         clearTimeout(this._closeTimeoutId);
@@ -334,6 +375,7 @@ export default class DropdownAlert extends Component {
                 action: action, // !!! How the alert was closed: automatic, programmatic, tap, pan or cancel
               };
               onClose(data);
+              this.markOnCloseAsUsed();
             }
           }
         }.bind(this),
