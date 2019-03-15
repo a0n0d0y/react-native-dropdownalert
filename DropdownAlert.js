@@ -329,12 +329,17 @@ export default class DropdownAlert extends Component {
    */
   getOnCloseFunc = (action) => {
     var ret = this.props.onClose;
-    if (this.onClose && !this.onClose.hasUsed) {
-      ret = this.onClose;
-    } else if (this.onClose) {
-      // Current onClose func has been used
+    if (this.onClose) {
+      const { hasUsed, onClose } = this.onClose;
+      if (!hasUsed) {
+        // Use the current onClose since it's newly set
+        ret = onClose;
+      } else {
+        // Current onClose func has been used
       this.resetOnClose();
+      }
     }
+
     if (action == 'cancel') {
       ret = this.props.onCancel;
     }
