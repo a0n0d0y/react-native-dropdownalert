@@ -165,8 +165,15 @@ export default class DropdownAlert extends Component {
       CUSTOM: 'custom',
     };
     this.image = undefined;
+    this.imageStyle = undefined;
+    this.imageContainerStyle = undefined;
     this.setImageSrc = this.setImageSrc.bind(this);
     this.resetImageSrc = this.resetImageSrc.bind(this);
+
+    this.setImageContainerStyle = this.setImageContainerStyle.bind(this);
+    this.resetImageContainerStyle = this.resetImageContainerStyle.bind(this);
+    this.setImageStyle = this.setImageStyle.bind(this);
+    this.resetImageStyle = this.resetImageStyle.bind(this);
   }
   componentDidMount() {
     this.createPanResponder();
@@ -205,12 +212,22 @@ export default class DropdownAlert extends Component {
       },
     });
   };
+  // Setters for image related properties
+  setImageStyle = (style) => {
+    this.imageStyle = style;
+  }
+  setImageContainerStyle = (style) => {
+    this.imageContainerStyle = style;
+  }
   setImageSrc = (src) => {
     this.image = src;
   }
   resetImageSrc = () => {
     this.image = undefined;
   }
+  resetImageStyle = () => this.imageStyle = undefined;
+  resetImageContainerStyle = () => this.imageContainerStyle = undefined;
+
   alertWithType = (type, title, message, interval) => {
     if (validateType(type) == false) {
       return;
@@ -243,6 +260,8 @@ export default class DropdownAlert extends Component {
           function() {
             this.close('automatic');
             this.resetImageSrc();
+            this.resetImageStyle();
+            this.resetImageContainerStyle();
           }.bind(this),
           closeInterval
         );
@@ -271,6 +290,8 @@ export default class DropdownAlert extends Component {
               function() {
                 self.close('automatic');
                 self.resetImageSrc();
+                self.resetImageStyle();
+                self.resetImageContainerStyle();
               }.bind(self),
               closeInterval
             );
@@ -424,7 +445,14 @@ export default class DropdownAlert extends Component {
     if (this.props.renderImage) {
       return this.props.renderImage(this.props, this.state);
     }
-    return <ImageView style={StyleSheet.flatten(this.props.imageStyle)} source={source} />;
+    // imageContainerStyle is not passed in through props
+    return (
+      <ImageView 
+        style={StyleSheet.flatten([this.props.imageStyle, this.imageStyle])}
+        source={source} 
+        containerStyle={this.imageContainerStyle} 
+      />
+    )
   }
   renderCancel(show) {
     if (show) {
