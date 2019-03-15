@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Image } from 'react-native';
+import { Image, View } from 'react-native';
 import { DEFAULT_IMAGE_DIMENSIONS } from './constants';
 
 export default class ImageView extends Component {
